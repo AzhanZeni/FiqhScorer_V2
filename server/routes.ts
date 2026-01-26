@@ -7,7 +7,7 @@ import { setupAuth, isAuthenticated } from "./replit_integrations/auth";
 import { registerAuthRoutes } from "./replit_integrations/auth";
 import { registerChatRoutes } from "./replit_integrations/chat"; // Optional: keep if chat is needed
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { openai } from "./replit_integrations/chat/client"; // Reusing the configured client
+import { openai } from "./replit_integrations/audio/client"; // Reusing the configured client
 
 export async function registerRoutes(
   httpServer: Server,
