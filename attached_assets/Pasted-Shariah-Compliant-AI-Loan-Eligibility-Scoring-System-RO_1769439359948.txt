@@ -1,0 +1,475 @@
+Shariah-Compliant AI Loan Eligibility & Scoring System
+
+🎯 ROLE
+
+You are a senior full-stack fintech engineer building a Shariah-compliant AI loan eligibility and credit scoring system.
+
+The system must:
+
+Follow Islamic finance principles
+
+Ensure deterministic, consistent AI scoring
+
+Provide explainable AI decisions
+
+Be production-ready for fintech regulatory environments
+
+🧠 1. Core Functional Requirements
+1.1 Loan Application Flow (Multi-Step Wizard)
+
+Steps:
+
+Loan Details
+
+Personal & Financial Profile
+
+Document Upload
+
+Review & Submit
+
+AI Credit Assessment Result
+
+1.2 Data Persistence Rule (CRITICAL)
+
+DO NOT save loan data to database until FINAL SUBMIT.
+
+Before submit, store data only in:
+
+React state
+
+Session storage
+
+Temporary backend cache (Redis / session store)
+
+Persist to database ONLY after user clicks FINAL SUBMIT.
+
+📋 2. Input Fields (Required & Enhanced)
+✅ Step 1 – Financing Request
+Required Fields
+
+Requested Amount (number)
+
+Financing Duration (months)
+
+Preferred Contract Type (enum):
+
+Murabahah
+
+Musharakah
+
+Qard Hasan
+
+Financing Purpose (text)
+
+Asset Type (required if Murabahah):
+
+Vehicle
+
+Property
+
+Equipment
+
+Inventory
+
+Education
+
+Medical
+
+Other
+
+Additional Recommended Fields
+
+Down Payment Amount
+
+Existing Monthly Commitments
+
+Expected ROI / Business Revenue Projection (required if Musharakah)
+
+Asset Price / Invoice Value (if Murabahah)
+
+✅ Step 2 – Personal & Financial Profile
+Required Fields
+
+Employment Type (enum):
+
+Salaried
+
+Self-Employed
+
+Business Owner
+
+Freelancer
+
+Student
+
+Unemployed
+
+Monthly Income
+
+Employer / Business Name
+
+Industry Sector
+
+Years of Employment / Business Operation
+
+Monthly Living Expenses
+
+Other Debt Obligations (loan, credit card, BNPL)
+
+Marital Status (optional)
+
+Number of Dependents
+
+Optional but Highly Useful
+
+Savings / Bank Balance Range
+
+Bank Account Age (years)
+
+Credit History Length
+
+📂 3. Document Upload Requirements
+✅ Mandatory Documents
+
+Government ID (IC / Passport)
+
+Proof of Income:
+
+Payslip (last 3 months) OR
+
+Bank Statement (last 6 months)
+
+Proof of Address (utility bill / tenancy agreement)
+
+Employer Confirmation Letter OR Business Registration (SSM)
+
+✅ Highly Recommended Documents
+
+EPF Statement
+
+Income Tax Return (Form BE/B)
+
+Business Financial Statements (required for Musharakah)
+
+Existing Loan Statements
+
+Bank Statement (6–12 months)
+
+Asset Quotation / Invoice (required for Murabahah)
+
+🤖 4. AI Credit Scoring System Requirements
+4.1 Trigger Logic
+
+AI scoring runs ONLY when user clicks “Run AI Assessment”
+
+AI must NOT auto-run on submit
+
+4.2 Deterministic & Consistent Scoring Rules
+
+Use structured scoring rubric in prompt
+
+temperature = 0
+
+JSON output only
+
+Backend must NOT invent scoring logic
+
+🧮 5. Scoring Criteria (Islamic Finance Aligned)
+A. Affordability Score (0–35)
+
+Debt-to-Income Ratio
+
+Disposable Income
+
+Duration vs Income
+
+B. Stability Score (0–20)
+
+Employment Type
+
+Employment Years
+
+Industry Risk
+
+C. Documentation Score (0–15)
+
+Document Completeness
+
+Verification Confidence
+
+D. Shariah Suitability Score (0–10)
+
+Contract vs Purpose match
+
+Asset-backed compliance
+
+Profit-sharing feasibility
+
+Social welfare logic
+
+E. Contract Compliance Score (0–20) (CRITICAL)
+
+Evaluate:
+
+Contract–Purpose alignment
+
+Contract-required documents
+
+Risk profile vs contract philosophy
+
+Shariah compliance confidence
+
+✅ Final Score Formula
+final_score =
+  affordability_score +
+  stability_score +
+  documentation_score +
+  shariah_score +
+  contract_compliance_score
+
+Risk Rating
+
+80–100 → Low Risk (Auto Approve)
+
+60–79 → Medium Risk (Manual Review)
+
+40–59 → High Risk (Conditional)
+
+<40 → Reject
+
+📊 6. Contract-Specific Scoring Logic
+🟢 Murabahah (Asset Financing)
+Higher Score If:
+
+Asset specified
+
+Invoice/quotation uploaded
+
+Down payment exists
+
+Stable income
+
+Penalize If:
+
+Purpose is cash/personal
+
+No asset proof
+
+High debt ratio
+
+🔵 Musharakah (Business Partnership)
+Higher Score If:
+
+Business registration uploaded
+
+Financial statements uploaded
+
+Revenue projections provided
+
+Business >2 years
+
+Penalize If:
+
+No business proof
+
+Personal consumption use
+
+No profit model
+
+🟡 Qard Hasan (Benevolent Loan)
+Higher Score If:
+
+Small amount
+
+Short tenure
+
+Social purpose (education, medical, hardship)
+
+Low debt
+
+Penalize If:
+
+Large amount
+
+Commercial purpose
+
+Long tenure
+
+🧠 7. AI Explainability Requirements
+
+AI must explain scores:
+
+Rules
+
+Max 5 bullet points
+
+Each bullet ≤ 20 words
+
+Must reference user data
+
+Must mention contract logic
+
+🤖 8. OpenAI Scoring Prompt (FINAL VERSION)
+SYSTEM PROMPT (DO NOT CHANGE)
+You are an Islamic finance credit risk analyst.
+Score loan applications deterministically.
+Apply contract-specific Islamic finance rules.
+Explain scores briefly in bullet points.
+Return only valid JSON.
+Do not include text outside JSON.
+
+USER PROMPT TEMPLATE
+Evaluate this Islamic financing application.
+
+Scoring Rules:
+- Murabahah requires asset proof and is lower risk for asset purchases.
+- Musharakah requires business proof and profit potential; higher uncertainty.
+- Qard Hasan is for social welfare; penalize large commercial requests.
+
+Return JSON:
+
+{
+  "affordability_score": number,
+  "stability_score": number,
+  "documentation_score": number,
+  "shariah_score": number,
+  "contract_compliance_score": number,
+  "final_score": number,
+  "risk_category": "Low Risk | Medium Risk | High Risk | Reject",
+  "decision": "Approve | Manual Review | Conditional | Reject",
+  "score_explanation": [
+    "short bullet point"
+  ],
+  "key_risks": [string],
+  "recommendations": [string],
+  "contract_suitability_advice": string,
+  "shariah_warning_flag": string
+}
+
+Application Data:
+<INSERT USER JSON DATA>
+
+🧾 9. Backend Architecture Requirements
+API Endpoints
+POST /loan/draft
+POST /loan/upload
+POST /loan/submit
+POST /loan/ai-assess
+GET  /loan/result/:id
+
+Database Tables
+LoanApplication
+
+id
+
+user_id
+
+amount
+
+duration
+
+contract_type
+
+purpose
+
+status
+
+LoanFinancialProfile
+
+income
+
+employment_type
+
+employer
+
+expenses
+
+debts
+
+LoanDocuments
+
+file_path
+
+type
+
+verified_flag
+
+LoanAIScore
+
+affordability_score
+
+stability_score
+
+documentation_score
+
+shariah_score
+
+contract_compliance_score
+
+final_score
+
+decision
+
+model_version
+
+raw_ai_response
+
+ai_prompt
+
+timestamp
+
+⚠️ 10. Security & Compliance
+
+Encrypt documents (private S3 bucket)
+
+Role-based access (user / officer)
+
+Audit log AI decisions
+
+Store AI prompt + response
+
+Consent checkbox for CCRIS/data processing
+
+🖥️ 11. Frontend UI Requirements
+
+Buttons:
+
+Next Step
+
+Back
+
+Run AI Assessment
+
+Submit Application
+
+Rules:
+
+Disable Submit until all fields + documents complete
+
+AI Assessment Result Dashboard:
+
+Score Gauge
+
+Score Breakdown
+
+Risk Label
+
+AI Explanation Bullets
+
+Risks & Recommendations
+
+🚀 Bonus Features (Hackathon-Winning)
+Contract Suitability Advisor
+
+AI suggests better contract if mismatch.
+
+Shariah Warning Flag
+
+AI warns if contract violates Shariah logic.
+
+✅ FINAL INSTRUCTION TO CODING AI
+Implement the system end-to-end using React + Node.js or Laravel.
+Ensure deterministic OpenAI scoring with temperature=0.
+Do not persist loan data until final submit.
+Follow Islamic finance compliance rules.
+Return production-ready backend, frontend, and database schema.
