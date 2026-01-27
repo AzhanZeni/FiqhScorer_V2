@@ -11,7 +11,7 @@ import { openai } from "./replit_integrations/audio/client"; // Reusing the conf
 
 export async function registerRoutes(
   httpServer: Server,
-  app: Express
+  app: Express,
 ): Promise<Server> {
   // 1. Setup Integrations
   await setupAuth(app);
@@ -32,23 +32,26 @@ export async function registerRoutes(
   app.post(api.loans.create.path, isAuthenticated, async (req: any, res) => {
     try {
       const input = api.loans.create.input.parse(req.body);
-      
+
       // Inject userId from auth
       const loanData = {
         ...input,
         userId: req.user.claims.sub,
       };
-      
+
       // Separate documents from loan data
       const { documents, ...applicationData } = loanData;
-      
-      const loan = await storage.createLoanApplication(applicationData, documents);
+
+      const loan = await storage.createLoanApplication(
+        applicationData,
+        documents,
+      );
       res.status(201).json(loan);
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
+          field: err.errors[0].path.join("."),
         });
       }
       res.status(500).json({ message: "Internal server error" });
@@ -140,7 +143,7 @@ ${JSON.stringify(loan, null, 2)}`;
         model: "gpt-5.1",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
+          { role: "user", content: userPrompt },
         ],
         response_format: { type: "json_object" },
         temperature: 0, // Deterministic
@@ -171,13 +174,15 @@ ${JSON.stringify(loan, null, 2)}`;
         newStatus = "approved";
       } else if (decisionLower.includes("reject")) {
         newStatus = "rejected";
-      } else if (decisionLower.includes("manual") || decisionLower.includes("conditional")) {
-        newStatus = "manual_review";
+      } else if (
+        decisionLower.includes("manual") ||
+        decisionLower.includes("conditional")
+      ) {
+        newStatus = "Up for manual review";
       }
       await storage.updateLoanStatus(loanId, newStatus);
 
       res.json(score);
-
     } catch (error) {
       console.error("AI Assessment Error:", error);
       res.status(500).json({ message: "Failed to run AI assessment" });

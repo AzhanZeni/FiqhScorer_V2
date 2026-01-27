@@ -1,7 +1,16 @@
 export * from "./models/auth";
 export * from "./models/chat";
 
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, decimal } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  serial,
+  integer,
+  boolean,
+  timestamp,
+  jsonb,
+  decimal,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -12,29 +21,31 @@ import { users } from "./models/auth";
 export const loanApplications = pgTable("loan_applications", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(), // References auth.users.id
-  
+
   // Step 1: Financing Request
   requestedAmount: decimal("requested_amount").notNull(),
   durationMonths: integer("duration_months").notNull(),
   contractType: text("contract_type").notNull(), // Murabahah, Musharakah, Qard Hasan
   purpose: text("purpose").notNull(),
   assetType: text("asset_type"), // Required for Murabahah
-  
+
   // Step 2: Personal & Financial Profile
   monthlyIncome: decimal("monthly_income").notNull(),
   employmentType: text("employment_type").notNull(),
   employerName: text("employer_name"),
   monthlyExpenses: decimal("monthly_expenses").notNull(),
   otherDebts: decimal("other_debts").default("0"),
-  
+
   // Meta
-  status: text("status").notNull().default("submitted"), // submitted, processing, approved, rejected, manual_review
+  status: text("status").notNull().default("submitted"), // submitted, processing, approved, rejected, Up for manual review
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const loanDocuments = pgTable("loan_documents", {
   id: serial("id").primaryKey(),
-  applicationId: integer("application_id").notNull().references(() => loanApplications.id),
+  applicationId: integer("application_id")
+    .notNull()
+    .references(() => loanApplications.id),
   type: text("type").notNull(), // identity, income, bank_statement
   fileUrl: text("file_url").notNull(),
   fileName: text("file_name").notNull(),
@@ -43,8 +54,10 @@ export const loanDocuments = pgTable("loan_documents", {
 
 export const loanAiScores = pgTable("loan_ai_scores", {
   id: serial("id").primaryKey(),
-  applicationId: integer("application_id").notNull().references(() => loanApplications.id),
-  
+  applicationId: integer("application_id")
+    .notNull()
+    .references(() => loanApplications.id),
+
   // Component Scores
   affordabilityScore: integer("affordability_score"),
   stabilityScore: integer("stability_score"),
@@ -52,28 +65,31 @@ export const loanAiScores = pgTable("loan_ai_scores", {
   shariahScore: integer("shariah_score"),
   contractComplianceScore: integer("contract_compliance_score"),
   finalScore: integer("final_score"),
-  
+
   // Decision
   riskCategory: text("risk_category"), // Low Risk, Medium Risk, High Risk, Reject
   decision: text("decision"), // Approve, Manual Review, Conditional, Reject
-  
+
   // AI Output
   explanation: jsonb("explanation"), // string[]
   keyRisks: jsonb("key_risks"), // string[]
   recommendations: jsonb("recommendations"), // string[]
-  
+
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 // === RELATIONS ===
 
-export const loanApplicationRelations = relations(loanApplications, ({ one, many }) => ({
-  documents: many(loanDocuments),
-  aiScore: one(loanAiScores, {
-    fields: [loanApplications.id],
-    references: [loanAiScores.applicationId],
+export const loanApplicationRelations = relations(
+  loanApplications,
+  ({ one, many }) => ({
+    documents: many(loanDocuments),
+    aiScore: one(loanAiScores, {
+      fields: [loanApplications.id],
+      references: [loanAiScores.applicationId],
+    }),
   }),
-}));
+);
 
 export const loanDocumentRelations = relations(loanDocuments, ({ one }) => ({
   application: one(loanApplications, {
@@ -91,16 +107,18 @@ export const loanAiScoreRelations = relations(loanAiScores, ({ one }) => ({
 
 // === ZOD SCHEMAS ===
 
-export const insertLoanApplicationSchema = createInsertSchema(loanApplications).omit({ 
-  id: true, 
+export const insertLoanApplicationSchema = createInsertSchema(
+  loanApplications,
+).omit({
+  id: true,
   userId: true, // Set by backend
-  status: true, 
-  createdAt: true 
+  status: true,
+  createdAt: true,
 });
 
-export const insertLoanDocumentSchema = createInsertSchema(loanDocuments).omit({ 
-  id: true, 
-  createdAt: true 
+export const insertLoanDocumentSchema = createInsertSchema(loanDocuments).omit({
+  id: true,
+  createdAt: true,
 });
 
 // === TYPES ===
