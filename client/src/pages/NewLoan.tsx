@@ -139,6 +139,7 @@ export default function NewLoan() {
                 documents={documents}
                 addDocument={addDocument}
                 removeDocument={removeDocument}
+                contractType={formData.contractType}
               />
             )}
             {currentStep === 3 && (
@@ -387,15 +388,17 @@ function Step3Documents({
   documents,
   addDocument,
   removeDocument,
+  contractType, // PASS THIS FROM STEP 1
 }: any) {
   const [uploadType, setUploadType] = useState("identity");
   const uploadTypeRef = useRef(uploadType);
-  
+
   const handleTypeChange = (val: string) => {
     setUploadType(val);
     uploadTypeRef.current = val;
   };
 
+  // Request presigned URL from backend
   const getUploadParams = async (file: File) => {
     const res = await fetch("/api/uploads/request-url", {
       method: "POST",
@@ -406,6 +409,7 @@ function Step3Documents({
         contentType: file.type,
       }),
     });
+
     const { uploadURL } = await res.json();
     return {
       method: "PUT" as const,
@@ -414,58 +418,117 @@ function Step3Documents({
     };
   };
 
+  // ---------------------------
+  // REQUIRED DOCUMENT RULES
+  // ---------------------------
+
+  const requiredTier1 = ["identity", "income", "bank_statement"];
+  const hasTier1 = requiredTier1.every((t) =>
+    documents.some((d: any) => d.type === t),
+  );
+
+  // Murabahah MUST have asset docs
+  const assetTypes = ["car_quotation", "proforma_invoice", "sale_agreement"];
+  const hasAssetDoc = documents.some((d: any) => assetTypes.includes(d.type));
+  const murabahahMissingAsset = contractType === "Murabahah" && !hasAssetDoc;
+
+  // Final Next button rule
+  const canProceed = hasTier1 && !murabahahMissingAsset;
+
   return (
     <div className="space-y-6">
+      {/* ================= HEADER ================= */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Supporting Documents</h2>
         <p className="text-sm text-muted-foreground">
-          Please upload proof of identity and income to support your
-          application.
+          Upload required documents. All Tier 1 documents are mandatory.
+          Murabahah requires asset documentation for Shariah compliance.
         </p>
 
+        {/* ================= UPLOAD BOX ================= */}
         <div className="bg-secondary/30 rounded-lg p-6 border border-dashed border-secondary">
           <div className="mb-4">
             <Label className="mb-2 block">Document Type</Label>
+
             <Select value={uploadType} onValueChange={handleTypeChange}>
-              <SelectTrigger className="w-full sm:w-[200px] bg-background">
+              <SelectTrigger className="w-full sm:w-[240px] bg-background">
                 <SelectValue />
               </SelectTrigger>
+
               <SelectContent>
+                {/* ---------- Tier 1 Mandatory ---------- */}
                 <SelectItem value="identity">
-                  Identity Proof (ID/Passport)
+                  Identity Proof (IC / Passport) *
                 </SelectItem>
-                <SelectItem value="income">Proof of Income</SelectItem>
-                <SelectItem value="bank_statement">Bank Statement</SelectItem>
-                <SelectItem value="asset_proof">
-                  Proof of Asset (for Murabahah)
+                <SelectItem value="income">Payslip / Income Proof *</SelectItem>
+                <SelectItem value="bank_statement">Bank Statement *</SelectItem>
+                <SelectItem value="ccris">
+                  CCRIS Credit Report (Optional)
+                </SelectItem>
+
+                {/* ---------- Murabahah Asset Docs ---------- */}
+                {contractType === "Murabahah" && (
+                  <>
+                    <SelectItem value="car_quotation">
+                      Quotation (Murabahah Required)
+                    </SelectItem>
+                    <SelectItem value="proforma_invoice">
+                      Pro Forma Invoice (Murabahah Required)
+                    </SelectItem>
+                    <SelectItem value="sale_agreement">
+                      Sale Agreement (Murabahah Required)
+                    </SelectItem>
+                  </>
+                )}
+
+                {/* ---------- Tier 2 ---------- */}
+                <SelectItem value="utility_bill">
+                  Utility Bills (Conditional)
+                </SelectItem>
+                <SelectItem value="rental_proof">
+                  Rental Payment Proof (Conditional)
+                </SelectItem>
+
+                {/* ---------- Tier 3 ---------- */}
+                <SelectItem value="business_registration">
+                  SSM / Business Registration
+                </SelectItem>
+                <SelectItem value="ewallet_history">
+                  E-Wallet Transaction History
+                </SelectItem>
+                <SelectItem value="merchant_payout">
+                  Merchant Payout Report (Grab/Shopee/etc)
                 </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
+          {/* ================= FILE UPLOADER ================= */}
           <ObjectUploader
             onGetUploadParameters={getUploadParams}
             onComplete={(result) => {
               if (result.successful && result.successful.length > 0) {
                 const file = result.successful[0];
-                const fileUrl = file.uploadURL;
                 addDocument({
                   type: uploadTypeRef.current,
                   fileName: file.name,
-                  fileUrl: fileUrl,
+                  fileUrl: file.uploadURL,
                 });
               }
             }}
           >
-            <div className="flex flex-col items-center justify-center gap-2 cursor-pointer w-full">
-              <UploadCloud className="w-8 h-8 text-primary" />
-              <span className="text-sm font-medium text-primary">
-                Click to Upload Document
-              </span>
+            <div className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-bold rounded-md text-sm hover:bg-primary/90 transition cursor-pointer w-fit">
+              <UploadCloud className="w-4 h-4" />
+              Click to Upload PDF Document
             </div>
+
+            <p className="text-xs text-muted-foreground mt-1">
+              PDF only • Max 10MB recommended
+            </p>
           </ObjectUploader>
         </div>
 
+        {/* ================= UPLOADED FILE LIST ================= */}
         {documents.length > 0 && (
           <div className="space-y-2">
             <Label>Uploaded Documents</Label>
@@ -486,6 +549,7 @@ function Step3Documents({
                       </p>
                     </div>
                   </div>
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -499,14 +563,31 @@ function Step3Documents({
             </div>
           </div>
         )}
+
+        {/* ================= SHARIAH WARNING ================= */}
+        {murabahahMissingAsset && (
+          <p className="text-sm text-red-600 font-medium">
+            ⚠ Murabahah requires asset documentation (quotation / invoice /
+            sale agreement).
+          </p>
+        )}
+
+        {!hasTier1 && (
+          <p className="text-sm text-yellow-600">
+            Please upload all Tier 1 documents (Identity, Income, Bank
+            Statement).
+          </p>
+        )}
       </div>
 
+      {/* ================= FOOTER BUTTONS ================= */}
       <div className="flex justify-between pt-4">
         <Button type="button" variant="outline" onClick={onBack}>
           Back
         </Button>
-        <Button onClick={onNext} disabled={documents.length === 0}>
-          Next Step <ArrowRight className="ml-2 w-4 h-4" />
+
+        <Button onClick={onNext} disabled={!canProceed}>
+          Review Loan Request <ArrowRight className="ml-2 w-4 h-4" />
         </Button>
       </div>
     </div>
