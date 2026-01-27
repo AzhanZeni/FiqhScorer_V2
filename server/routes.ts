@@ -164,6 +164,18 @@ ${JSON.stringify(loan, null, 2)}`;
         recommendations: result.recommendations,
       });
 
+      // Update loan status based on AI decision
+      const decisionLower = result.decision?.toLowerCase() || "";
+      let newStatus = "processing";
+      if (decisionLower.includes("approve")) {
+        newStatus = "approved";
+      } else if (decisionLower.includes("reject")) {
+        newStatus = "rejected";
+      } else if (decisionLower.includes("manual") || decisionLower.includes("conditional")) {
+        newStatus = "manual_review";
+      }
+      await storage.updateLoanStatus(loanId, newStatus);
+
       res.json(score);
 
     } catch (error) {

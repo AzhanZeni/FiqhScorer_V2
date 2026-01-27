@@ -18,6 +18,7 @@ export interface IStorage {
   getLoanDocuments(applicationId: number): Promise<LoanDocument[]>;
   getLoanScore(applicationId: number): Promise<LoanAiScore | undefined>;
   createLoanScore(scoreData: any): Promise<LoanAiScore>;
+  updateLoanStatus(id: number, status: string): Promise<LoanApplication | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -72,6 +73,15 @@ export class DatabaseStorage implements IStorage {
       .values(scoreData)
       .returning();
     return score;
+  }
+
+  async updateLoanStatus(id: number, status: string): Promise<LoanApplication | undefined> {
+    const [updated] = await db
+      .update(loanApplications)
+      .set({ status })
+      .where(eq(loanApplications.id, id))
+      .returning();
+    return updated;
   }
 }
 
