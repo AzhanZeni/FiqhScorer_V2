@@ -1,6 +1,12 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ShieldCheck, TrendingUp, FileText, Lock } from "lucide-react";
+import {
+  ArrowRight,
+  ShieldCheck,
+  TrendingUp,
+  FileText,
+  Lock,
+} from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function Landing() {
@@ -13,7 +19,9 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-6 h-6 text-primary" />
-            <span className="font-display font-bold text-xl text-primary">HalalScore AI</span>
+            <span className="font-display font-bold text-xl text-primary">
+              FiqhScorer
+            </span>
           </div>
           <div className="flex items-center gap-4">
             {user ? (
@@ -21,9 +29,9 @@ export default function Landing() {
                 <Button className="rounded-full">Dashboard</Button>
               </Link>
             ) : (
-              <Link href="/api/login">
-                <Button className="rounded-full" variant="outline">Sign In</Button>
-              </Link>
+              <a href="/api/login">
+                <Button variant="outline">Sign In</Button>
+              </a>
             )}
           </div>
         </div>
@@ -39,28 +47,37 @@ export default function Landing() {
             </span>
             Shariah-Compliant AI Credit Assessment
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-display font-bold text-primary mb-6 leading-tight max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
-            Ethical Financing Powered by <span className="italic text-primary/80">Intelligence</span>
+            Ethical Financing Powered by{" "}
+            <span className="italic text-primary/80">Intelligence</span>
           </h1>
-          
+
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-            Secure, transparent, and fully compliant Islamic financing assessment. 
-            Get instant eligibility scoring tailored to Murabahah, Musharakah, and Qard Hasan contracts.
+            Secure, transparent, and fully compliant Islamic financing
+            assessment. Get instant eligibility scoring tailored to Murabahah,
+            Musharakah, and Qard Hasan contracts.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
             <Link href={user ? "/dashboard" : "/api/login"}>
-              <Button size="lg" className="rounded-full px-8 h-12 text-base shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all">
+              <Button
+                size="lg"
+                className="rounded-full px-8 h-12 text-base shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+              >
                 Check Eligibility <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
-            <Button variant="ghost" size="lg" className="rounded-full px-8 h-12 text-base">
+            <Button
+              variant="ghost"
+              size="lg"
+              className="rounded-full px-8 h-12 text-base"
+            >
               Learn How It Works
             </Button>
           </div>
         </div>
-        
+
         {/* Background Decorative Elements */}
         <div className="absolute top-0 left-0 w-full h-full -z-0 opacity-40 pointer-events-none">
           <div className="absolute top-1/4 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
@@ -76,29 +93,38 @@ export default function Landing() {
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
                 <TrendingUp className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-bold mb-3 font-display">AI-Driven Scoring</h3>
+              <h3 className="text-xl font-bold mb-3 font-display">
+                AI-Driven Scoring
+              </h3>
               <p className="text-muted-foreground">
-                Advanced algorithms analyze financial data while strictly adhering to Islamic finance principles.
+                Advanced algorithms analyze financial data while strictly
+                adhering to Islamic finance principles.
               </p>
             </div>
-            
+
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-border/50 hover:shadow-md transition-shadow">
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
                 <FileText className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-bold mb-3 font-display">Contract Specific</h3>
+              <h3 className="text-xl font-bold mb-3 font-display">
+                Contract Specific
+              </h3>
               <p className="text-muted-foreground">
-                Tailored assessment models for various contract types including Murabahah and Musharakah.
+                Tailored assessment models for various contract types including
+                Murabahah and Musharakah.
               </p>
             </div>
-            
+
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-border/50 hover:shadow-md transition-shadow">
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
                 <Lock className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-bold mb-3 font-display">Secure & Private</h3>
+              <h3 className="text-xl font-bold mb-3 font-display">
+                Secure & Private
+              </h3>
               <p className="text-muted-foreground">
-                Your financial data is encrypted and processed securely. We prioritize your privacy above all.
+                Your financial data is encrypted and processed securely. We
+                prioritize your privacy above all.
               </p>
             </div>
           </div>

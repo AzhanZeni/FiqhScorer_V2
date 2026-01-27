@@ -23,6 +23,10 @@ export const api = {
       method: 'POST' as const,
       path: '/api/loans',
       input: insertLoanApplicationSchema.extend({
+        requestedAmount: z.preprocess((val) => String(val), z.string()),
+        monthlyIncome: z.preprocess((val) => String(val), z.string()),
+        monthlyExpenses: z.preprocess((val) => String(val), z.string()),
+        otherDebts: z.preprocess((val) => val ? String(val) : "0", z.string()),
         documents: z.array(insertLoanDocumentSchema.omit({ applicationId: true }))
       }),
       responses: {

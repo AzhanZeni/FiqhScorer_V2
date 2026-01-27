@@ -23,15 +23,22 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       <header className="bg-white border-b border-border sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="font-display font-bold text-xl text-primary">HalalScore AI</div>
+          <div className="font-display font-bold text-xl text-primary">
+            FiqhScorer
+          </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <img 
-                src={user?.profileImageUrl || "https://ui-avatars.com/api/?name=User"} 
-                alt="Profile" 
+              <img
+                src={
+                  user?.profileImageUrl ||
+                  "https://ui-avatars.com/api/?name=User"
+                }
+                alt="Profile"
                 className="w-8 h-8 rounded-full border border-border"
               />
-              <span className="text-sm font-medium hidden sm:block">{user?.firstName}</span>
+              <span className="text-sm font-medium hidden sm:block">
+                {user?.firstName}
+              </span>
             </div>
             <Button variant="ghost" size="sm" onClick={() => logout()}>
               Log out
@@ -43,8 +50,12 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">Dashboard</h1>
-            <p className="text-muted-foreground mt-1">Manage your loan applications and view scores.</p>
+            <h1 className="text-3xl font-display font-bold text-foreground">
+              Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your loan applications and view scores.
+            </p>
           </div>
           <Link href="/loans/new">
             <Button className="shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all">
@@ -56,7 +67,7 @@ export default function Dashboard() {
         {loans && loans.length > 0 ? (
           <div className="grid gap-4">
             {loans.map((loan) => (
-              <div 
+              <div
                 key={loan.id}
                 onClick={() => setLocation(`/loans/${loan.id}`)}
                 className="bg-card rounded-xl p-6 border border-border hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group"
@@ -71,24 +82,35 @@ export default function Dashboard() {
                         {loan.contractType} Application
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {loan.purpose} • Applied on {format(new Date(loan.createdAt!), "MMM d, yyyy")}
+                        {loan.purpose} • Applied on{" "}
+                        {format(new Date(loan.createdAt!), "MMM d, yyyy")}
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-6">
                     <div className="text-right">
-                      <div className="text-sm text-muted-foreground">Amount</div>
-                      <div className="font-mono font-medium">${Number(loan.requestedAmount).toLocaleString()}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Amount
+                      </div>
+                      <div className="font-mono font-medium">
+                        ${Number(loan.requestedAmount).toLocaleString()}
+                      </div>
                     </div>
-                    
+
                     <div className="min-w-[100px] text-right">
-                      <RiskBadge 
-                        category={loan.status === 'submitted' ? 'Pending' : loan.status} 
-                        className={loan.status === 'submitted' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+                      <RiskBadge
+                        category={
+                          loan.status === "submitted" ? "Pending" : loan.status
+                        }
+                        className={
+                          loan.status === "submitted"
+                            ? "bg-blue-100 text-blue-800 border-blue-200"
+                            : ""
+                        }
                       />
                     </div>
-                    
+
                     <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
@@ -101,7 +123,9 @@ export default function Dashboard() {
               <FileText className="w-8 h-8 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold mb-2">No applications yet</h3>
-            <p className="text-muted-foreground mb-6">Start your journey by creating a new financing request.</p>
+            <p className="text-muted-foreground mb-6">
+              Start your journey by creating a new financing request.
+            </p>
             <Link href="/loans/new">
               <Button>Start Application</Button>
             </Link>
