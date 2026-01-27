@@ -14,6 +14,7 @@ import { eq, desc } from "drizzle-orm";
 export interface IStorage {
   createLoanApplication(data: InsertLoanApplication, documents: Omit<InsertLoanDocument, "applicationId">[]): Promise<LoanApplication>;
   getUserLoans(userId: string): Promise<LoanApplication[]>;
+  getUserLoansWithScores(userId: string): Promise<(LoanApplication & { aiScore: LoanAiScore | null })[]>;
   getLoan(id: number): Promise<LoanApplication | undefined>;
   getLoanDocuments(applicationId: number): Promise<LoanDocument[]>;
   getLoanScore(applicationId: number): Promise<LoanAiScore | undefined>;
@@ -42,6 +43,23 @@ export class DatabaseStorage implements IStorage {
       .from(loanApplications)
       .where(eq(loanApplications.userId, userId))
       .orderBy(desc(loanApplications.createdAt));
+  }
+
+  async getUserLoansWithScores(userId: string): Promise<(LoanApplication & { aiScore: LoanAiScore | null })[]> {
+    const loans = await db
+      .select()
+      .from(loanApplications)
+      .where(eq(loanApplications.userId, userId))
+      .orderBy(desc(loanApplications.createdAt));
+    
+    const loansWithScores = await Promise.all(
+      loans.map(async (loan) => {
+        const score = await this.getLoanScore(loan.id);
+        return { ...loan, aiScore: score || null };
+      })
+    );
+    
+    return loansWithScores;
   }
 
   async getLoan(id: number): Promise<LoanApplication | undefined> {

@@ -21,10 +21,10 @@ export async function registerRoutes(
 
   // 2. Loan Routes
 
-  // List Loans
+  // List Loans (with AI scores)
   app.get(api.loans.list.path, isAuthenticated, async (req: any, res) => {
     const userId = req.user.claims.sub;
-    const loans = await storage.getUserLoans(userId);
+    const loans = await storage.getUserLoansWithScores(userId);
     res.json(loans);
   });
 

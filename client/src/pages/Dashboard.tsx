@@ -1,10 +1,24 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useLoans } from "@/hooks/use-loans";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, ChevronRight, Loader2 } from "lucide-react";
+import { Plus, FileText, ChevronRight, Loader2, TrendingUp, TrendingDown, Minus, Award } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { format } from "date-fns";
 import { RiskBadge } from "@/components/RiskBadge";
+
+function getScoreColor(score: number | null | undefined) {
+  if (!score) return "text-muted-foreground";
+  if (score >= 80) return "text-green-600";
+  if (score >= 60) return "text-amber-600";
+  return "text-red-600";
+}
+
+function getScoreIcon(score: number | null | undefined) {
+  if (!score) return <Minus className="w-4 h-4" />;
+  if (score >= 80) return <TrendingUp className="w-4 h-4" />;
+  if (score >= 60) return <Minus className="w-4 h-4" />;
+  return <TrendingDown className="w-4 h-4" />;
+}
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -95,6 +109,14 @@ export default function Dashboard() {
                       </div>
                       <div className="font-mono font-medium">
                         ${Number(loan.requestedAmount).toLocaleString()}
+                      </div>
+                    </div>
+
+                    <div className="text-right min-w-[80px]">
+                      <div className="text-sm text-muted-foreground">Score</div>
+                      <div className={`flex items-center justify-end gap-1 font-semibold ${getScoreColor(loan.aiScore?.finalScore)}`}>
+                        {getScoreIcon(loan.aiScore?.finalScore)}
+                        <span>{loan.aiScore?.finalScore ?? "—"}</span>
                       </div>
                     </div>
 
